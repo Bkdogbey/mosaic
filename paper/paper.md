@@ -10,11 +10,15 @@ tags:
   - MiniGrid
   - human-subjects experimentation
 authors:
-
-
-- name: Author Name # TODO: confirm full author list, spelling, and order
+  - name: Bennett Dogbey
     orcid: 0000-0000-0000-0000 # TODO: real ORCID
     corresponding: true # TODO: confirm corresponding author
+    affiliation: 1
+  - name: Elahe Oveisi
+    orcid: 0000-0000-0000-0000 # TODO: real ORCID
+    affiliation: 1
+  - name: Hemanth Manjunatha
+    orcid: 0000-0000-0000-0000 # TODO: real ORCID
     affiliation: 1
 affiliations:
   - name: TODO institution, department, city, country
@@ -22,74 +26,31 @@ affiliations:
   
   - name: TODO institution, department, city, country
     index: 1
-    
+
 date: 1 September 2026 # TODO: update to the actual submission date
 bibliography: paper.bib
 ---
 
 # Summary
 
-<!--
-OUTLINE - 150-200 words. Do not draft yet.
+Research on human–AI collaboration requires controlled environments that are complex enough to produce meaningful decisions yet repeatable enough to support systematic experimentation. MOSAIC is an open-source, grid-based search-and-rescue platform designed for this purpose. Built on MiniGrid and Gymnasium [@chevalier2023minigrid; @towers2026gymnasium], it places a human participant in a time-constrained, multi-room mission involving real victims, decoys, locked doors, keys, and environmental hazards. During the mission, an AI assistant can provide natural-language recommendations based on the current task state, while the participant retains responsibility for deciding whether and how to follow that advice.
 
-  - Introduce human-AI collaboration for a non-specialist audience.
-  - Explain the need for controlled and repeatable research environments.
-  - Define MOSAIC and its search-and-rescue task.
-  - State the roles of the human and the AI accurately (verify against the code
-    before writing; do not overstate the AI's autonomy or authority).
-  - Summarize the main software capabilities and the intended users.
-  - -Clear and understandable
-
-CONSTRAINT: no novelty comparisons in this section - those belong in
-"State of the field".
--->
+MOSAIC records structured information about the environment, participant actions, mission progress, and interactions with the AI assistant. Researchers can vary the environment layout, victim and hazard placement, visual perspective, reward structure, AI client, prompting method, and experimental pacing without rewriting the underlying task. The software separates reusable search-and-rescue mechanics from study-specific configuration and provides an experiment layer for integrating participant measures, synchronized sensing, and session replay. MOSAIC therefore supports reproducible investigations of how people seek, interpret, trust, and act on AI assistance under workload, uncertainty, and time pressure.
 
 # Statement of need
 
-<!--
-OUTLINE - 180-250 words. Do not draft yet.
+Research on human-AI interaction requires tasks that simulate realistic challenges such as time pressure, incomplete information, and tangible consequences for errors, while maintaining enough control for consistent replication across participants. Simply measuring the final task score is insufficient; researchers need detailed data on the sequence of participant actions, the timing and content of AI advice, and aligned physiological signals.
 
-  - Explain the challenge of studying human-AI interaction under time pressure,
-    uncertainty, workload, and incomplete information.
-  - Explain the need to measure behavior, performance, communication, situation
-    awareness, and physiological signals.
-  - Explain the difficulty of combining simulation, GUI, AI, sensing, logging,
-    and replay tooling independently.
-  - Identify the target users: human-AI teaming, human-factors, HCI, and
-    reinforcement-learning researchers conducting human studies.
-  - End with the precise research gap that MOSAIC addresses.
--->
+Currently, assembling this experimental setup is a labor-intensive process for each research. It involves integrating multiple components such as simulators, participant interfaces, AI modules, sensor synchronization, logging, and replay tools that were often developed independently without a shared timing framework. This leads to substantial, often redundant framework that is tightly coupled to specific study designs, limiting reusability.
+
+MOSAIC provides an integrated, Gymnasium-compatible framework for human-AI teaming, human factors, and reinforcement learning research. It features a configurable search-and-rescue task, operator interface, and modular advisory channel, with consistent logging and replay tied to environment observations. Task parameters such as reward scales, pacing, hazard density, and sensor settings are injected at runtime to maintain neutrality and adaptability.
+
+By separating core task mechanics from experiment layers and supporting replaceable components, MOSAIC enables researchers to manipulate conditions while preserving a consistent task foundation, facilitating rigorous study of AI-assisted decision-making under realistic constraints.
 
 # State of the field
 
-<!--Do not draft yet, and do not add citations in this pass.
 
-Reserve comparisons with:
-  - MiniGrid
-  - Gymnasium
-  - MATRX, including its urban search-and-rescue testbed
-  - Overcooked-AI
-  - PsychoPy
-  - Lab Streaming Layer
 
-The eventual comparison must consider:
-  - purpose
-  - human interaction
-  - AI-agent or AI-advisor support
-  - Gymnasium compatibility
-  - SAR functionality
-  - experimental instrumentation
-  - physiological-data integration
-  - reproducibility
-  - extensibility
-
-REQUIRED: an explicit "build versus contribute" justification - why MOSAIC was
-built as a separate testbed rather than contributed as an extension to one of
-the systems above.
-
-TODO: add the corresponding BibTeX entries to paper.bib when the comparison is
-written. paper.bib is currently empty by design.
--->
 
 # Software design
 
