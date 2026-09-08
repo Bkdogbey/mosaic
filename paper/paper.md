@@ -49,7 +49,7 @@ By separating core task mechanics from experiment layers and supporting replacea
 
 # State of the field
 
-
+Simulation testbeds provide controlled and flexible environments for studying human–AI interaction, allowing researchers to manipulate task conditions and reproduce experimental scenarios systematically. They also enable researchers to modify task parameters, introduce new features, and adapt the environment to the requirements of different experimental designs.
 
 
 # Software design
