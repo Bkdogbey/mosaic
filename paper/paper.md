@@ -51,6 +51,9 @@ By separating core task mechanics from experiment layers and supporting replacea
 
 Simulation testbeds provide controlled and flexible environments for studying human–AI interaction, allowing researchers to manipulate task conditions and reproduce experimental scenarios systematically. They also enable researchers to modify task parameters, introduce new features, and adapt the environment to the requirements of different experimental designs.
 
+For our MOSAIC simulation, MiniGrid provides a lightweight and configurable 2D simulation environment in which human–AI interaction can be systematically studied. Its compatibility with reinforcement learning, external AI models, and planning algorithms allows MOSAIC to support different forms of AI assistance while maintaining control over the task environment and experimental conditions.
+
+
 
 # Software design
 
