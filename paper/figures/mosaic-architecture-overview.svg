@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">MOSAIC software architecture overview</title>
+  <desc id="desc">The installable MOSAIC package provides the participant interface, search-and-rescue environment, injected components, rendered frame, structured state and events, and provider-independent AI advisory interface. The study-specific experiment layer supplies calibrated components, provider adapters, Lab Streaming Layer recording, eye tracking, and replay.</desc>
+  <defs>
+    <marker id="blue-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#315f8c"/>
+    </marker>
+    <marker id="orange-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a96728"/>
+    </marker>
+    <marker id="gray-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#59636e"/>
+    </marker>
+    <style>
+      .cluster-title { font: 600 23px Arial, Helvetica, sans-serif; }
+      .cluster-note { font: 400 17px Arial, Helvetica, sans-serif; }
+      .node-title { font: 600 20px Arial, Helvetica, sans-serif; fill: #17212b; }
+      .node-text { font: 400 17px Arial, Helvetica, sans-serif; fill: #3f4a55; }
+      .edge-label { font: 600 16px Arial, Helvetica, sans-serif; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+      .core-node { fill: #fff; stroke: #4e7fae; stroke-width: 2; }
+      .study-node { fill: #fff; stroke: #bd7c3c; stroke-width: 2; }
+      .external-node { fill: #fff; stroke: #727d88; stroke-width: 2; }
+      .blue-flow { fill: none; stroke: #315f8c; stroke-width: 2.5; marker-end: url(#blue-arrow); }
+      .orange-flow { fill: none; stroke: #a96728; stroke-width: 2.5; marker-end: url(#orange-arrow); }
+      .gray-flow { fill: none; stroke: #59636e; stroke-width: 2.5; marker-end: url(#gray-arrow); }
+      .dashed { stroke-dasharray: 8 6; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="760" fill="#fff"/>
+
+  <rect x="15" y="165" width="150" height="82" rx="12" class="external-node"/>
+  <text x="90" y="198" text-anchor="middle" class="node-title">Participant</text>
+  <text x="90" y="225" text-anchor="middle" class="node-text">Human operator</text>
+
+  <rect x="190" y="28" width="980" height="402" rx="18" fill="#f2f7fc" stroke="#4e7fae" stroke-width="2.5"/>
+  <text x="218" y="63" class="cluster-title" fill="#244d73">mosaic — installable package</text>
+  <text x="218" y="88" class="cluster-note" fill="#466987">Stable contracts and neutral defaults</text>
+
+  <rect x="225" y="115" width="220" height="95" rx="12" class="core-node"/>
+  <text x="335" y="147" text-anchor="middle" class="node-title">Human interface</text>
+  <text x="335" y="175" text-anchor="middle" class="node-text">Input · viewport · panels</text>
+  <text x="335" y="198" text-anchor="middle" class="node-text">event feedback</text>
+
+  <rect x="515" y="115" width="210" height="95" rx="12" class="core-node"/>
+  <text x="620" y="147" text-anchor="middle" class="node-title">SAR environment</text>
+  <text x="620" y="175" text-anchor="middle" class="node-text">MiniGrid dynamics</text>
+  <text x="620" y="198" text-anchor="middle" class="node-text">Gymnasium reset / step</text>
+
+  <rect x="790" y="105" width="330" height="115" rx="12" class="core-node"/>
+  <text x="955" y="137" text-anchor="middle" class="node-title">Injected components</text>
+  <text x="955" y="165" text-anchor="middle" class="node-text">Placers · rescue action · camera</text>
+  <text x="955" y="188" text-anchor="middle" class="node-text">observation processor</text>
+  <text x="955" y="211" text-anchor="middle" class="node-text">Neutral implementations by default</text>
+
+  <rect x="370" y="292" width="200" height="85" rx="12" class="core-node"/>
+  <text x="470" y="326" text-anchor="middle" class="node-title">RGB frame</text>
+  <text x="470" y="354" text-anchor="middle" class="node-text">Camera view for display</text>
+
+  <rect x="610" y="280" width="260" height="110" rx="12" class="core-node"/>
+  <text x="740" y="313" text-anchor="middle" class="node-title">Structured state + events</text>
+  <text x="740" y="341" text-anchor="middle" class="node-text">Grid · pose · mission · health</text>
+  <text x="740" y="364" text-anchor="middle" class="node-text">Semantic task outcomes</text>
+
+  <rect x="920" y="292" width="200" height="85" rx="12" class="core-node"/>
+  <text x="1020" y="326" text-anchor="middle" class="node-title">AI advisory</text>
+  <text x="1020" y="354" text-anchor="middle" class="node-text">Prompt · client · response</text>
+
+  <path d="M165 190 C188 178 202 167 225 160" class="gray-flow"/>
+  <text x="190" y="157" text-anchor="middle" class="edge-label" fill="#59636e">keys</text>
+  <path d="M225 192 C202 216 188 227 165 226" class="gray-flow"/>
+  <text x="194" y="249" text-anchor="middle" class="edge-label" fill="#59636e">display</text>
+
+  <path d="M445 151 C470 143 490 143 515 151" class="blue-flow"/>
+  <text x="480" y="132" text-anchor="middle" class="edge-label" fill="#315f8c">actions</text>
+  <path d="M790 160 L725 160" class="blue-flow"/>
+  <text x="758" y="143" text-anchor="middle" class="edge-label" fill="#315f8c">configures</text>
+
+  <path d="M585 210 C555 248 505 260 480 292" class="blue-flow"/>
+  <text x="525" y="253" text-anchor="middle" class="edge-label" fill="#315f8c">render</text>
+  <path d="M440 292 C405 260 370 235 350 210" class="blue-flow"/>
+  <text x="402" y="255" text-anchor="middle" class="edge-label" fill="#315f8c">viewport</text>
+
+  <path d="M655 210 C680 244 712 255 728 280" class="blue-flow"/>
+  <text x="707" y="244" text-anchor="middle" class="edge-label" fill="#315f8c">step output</text>
+  <path d="M610 350 C585 397 550 405 500 405 L345 405 C305 360 292 276 320 210" class="blue-flow"/>
+  <text x="500" y="398" text-anchor="middle" class="edge-label" fill="#315f8c">panels + feedback</text>
+
+  <path d="M870 335 L920 335" class="blue-flow"/>
+  <text x="895" y="317" text-anchor="middle" class="edge-label" fill="#315f8c">snapshot</text>
+  <path d="M1020 292 C1015 250 960 240 900 240 L520 240 C480 235 458 210 445 183" class="blue-flow"/>
+  <text x="780" y="232" text-anchor="middle" class="edge-label" fill="#315f8c">advice</text>
+
+  <rect x="190" y="470" width="980" height="250" rx="18" fill="#fdf6ee" stroke="#bd7c3c" stroke-width="2.5"/>
+  <text x="218" y="505" class="cluster-title" fill="#7a4618">experiment — study-specific layer</text>
+
+  <rect x="235" y="565" width="240" height="95" rx="12" class="study-node"/>
+  <text x="355" y="597" text-anchor="middle" class="node-title">Study composition</text>
+  <text x="355" y="625" text-anchor="middle" class="node-text">Placements · rewards · pacing</text>
+  <text x="355" y="648" text-anchor="middle" class="node-text">health dynamics</text>
+
+  <rect x="520" y="565" width="190" height="95" rx="12" class="study-node"/>
+  <text x="615" y="597" text-anchor="middle" class="node-title">Provider adapters</text>
+  <text x="615" y="625" text-anchor="middle" class="node-text">OpenAI · Google</text>
+  <text x="615" y="648" text-anchor="middle" class="node-text">Lazy provider loading</text>
+
+  <rect x="750" y="552" width="250" height="120" rx="12" class="study-node"/>
+  <text x="875" y="584" text-anchor="middle" class="node-title">Trial instrumentation</text>
+  <text x="875" y="612" text-anchor="middle" class="node-text">Game state over LSL</text>
+  <text x="875" y="635" text-anchor="middle" class="node-text">Eye-tracking stream alongside</text>
+  <text x="875" y="658" text-anchor="middle" class="node-text">Actions · rewards · AI responses</text>
+
+  <rect x="1040" y="565" width="100" height="95" rx="12" class="study-node"/>
+  <text x="1090" y="600" text-anchor="middle" class="node-title">Replay</text>
+  <text x="1090" y="628" text-anchor="middle" class="node-text">Recorded</text>
+  <text x="1090" y="651" text-anchor="middle" class="node-text">game states</text>
+
+  <path d="M475 605 C500 565 525 545 560 540 L705 540 C790 445 875 315 920 220" class="orange-flow dashed"/>
+  <path d="M650 565 C675 540 710 530 750 520 C830 480 920 430 990 377" class="orange-flow dashed"/>
+  <path d="M790 390 C795 445 842 492 865 552" class="orange-flow"/>
+  <path d="M1000 613 L1040 613" class="orange-flow"/>
+  <text x="1020" y="595" text-anchor="middle" class="edge-label" fill="#a96728">log</text>
+</svg>

@@ -59,6 +59,26 @@ MOSAIC addresses this gap by combining a configurable search-and-rescue grid env
 
 
 # Software design
+MOSAIC was designed to support three uses of the same Search and Rescue task: programmatic interaction by an artificial agent, real-time interaction by a human participant, and integration into controlled experimental protocols. Combining these concerns in a single application would make study-specific changes—such as reward calibration, victim placement, or AI-provider selection—difficult to separate from the underlying task. MOSAIC therefore defines a stable environment core and composes human-facing and study-specific behavior around it.
+
+The core builds on MiniGrid and retains Gymnasium’s `reset()` and `step()` interaction model. The environment contains the mission lifecycle and action dispatch, while variable behavior is delegated to configurable components. Placement strategies determine the distribution of victims, hazards, and locked rooms; an action component implements rescue outcomes; an observation processor constructs research-relevant state; and a camera strategy determines the participant’s visible region. This requires more explicit configuration than a fixed environment, but allows layout, visibility, rewards, and task difficulty to be manipulated independently while preserving the task’s action semantics.
+
+MOSAIC distinguishes between visual presentation and structured research state. A camera strategy produces the RGB frame displayed in the game viewport. Separately, the observation processor produces an encoded grid together with agent pose, mission progress, victim health, and camera bounds. This structured representation is used by the information panel, AI-advisory pipeline, trial logger, and replay utility. Outcomes such as `victim_rescued`, `wrong_victim`, `victim_died`, and `mission_complete` are communicated as semantic events through the step information rather than inferred from reward magnitude. This permits reward values to change between studies without requiring the interface or data-processing tools to reinterpret their meaning.
+
+A second design decision separates reusable software from experimental calibration. The installable `mosaic` package contains the environment, neutral placement and reward defaults, interchangeable cameras, participant interface, and AI-advisory contract. The repository’s `experiment` layer is excluded from the distributed package and composes the core with the present study’s pacing, victim-health dynamics, hazard placement, trial sequence, sensing, and provider configuration. For example, the reusable rescue action assigns rewards of \(+1\), \(-1\), and \(-2\) to its three pickup outcomes, whereas the study configures \(+10\), \(-10\), and \(-20\) without modifying the reusable action logic. The additional composition required at study startup makes these assumptions explicit and prevents one protocol’s calibration from becoming the default for subsequent research.
+
+MOSAIC favors composition and constructor injection over a deep hierarchy of experiment-specific subclasses. Placers, rescue behavior, observation processing, cameras, AI clients, and GUI components can be replaced independently, while neutral implementations provide a working default configuration. Inheritance is retained when behavior must occur at a precise point in the environment lifecycle. The study-specific environment, for example, applies visibility-dependent victim-health depletion after executing an action but before constructing the returned observation. Restricting inheritance to such ordering-sensitive behavior keeps most experimental variation localized and independently testable.
+
+The participant interface is an adapter over the same action and state interfaces used by programmatic agents. Keyboard input is translated into environment actions, while the GUI combines the RGB frame with mission information, advisory messages, and event-driven visual feedback. AI advice is accessed through a narrow `LLMClient` contract that accepts text and returns text. Prompt construction and response processing are separate configurable operations, and provider-specific adapters remain in the experiment layer. The reusable package supplies an offline dummy client, allowing the environment and interface to operate without credentials or network access. Advice requests run in a background thread over a copied observation, preserving a consistent state snapshot while the rendering loop continues.
+
+The experiment layer records structured game-state snapshots through Lab Streaming Layer alongside the eye-tracking stream. The replay utility reconstructs the game from the recorded grid states rather than re-executing the environment. Recording complete state requires more storage than recording actions alone, but avoids relying on exact regeneration of human choices or external model responses. The same component boundaries support headless tests using injected clients, components, and clocks, allowing task mechanics, advisory integration, and visual feedback to be evaluated without a model provider or specialized sensing hardware.
+
+![Overview of MOSAIC's layered architecture. The installable `mosaic`
+package defines the SAR task, participant interface, structured state and
+event boundary, and provider-independent AI interface. The study-specific
+`experiment` layer supplies calibrated implementations, provider adapters,
+instrumentation, and state-based replay.
+\label{fig:architecture}](figures/mosaic-architecture-overview.png){width="100%"}
 
 <!--
 OUTLINE - 300-400 words. Do not draft yet.
@@ -75,7 +95,7 @@ Organize the discussion around design decisions, not a module tour:
    7. Experimental logging, sensing, and replay.
    8. Composition versus inheritance.
    9. Reusability versus study-specific calibration.
-  10. Reproducibility and testability.
+  1.  Reproducibility and testability.
 
 Grounding pointers for the drafter - verify each against the code before making
 any claim about it:
