@@ -78,7 +78,7 @@ package defines the SAR task, participant interface, structured state and
 event boundary, and provider-independent AI interface. The study-specific
 `experiment` layer supplies calibrated implementations, provider adapters,
 instrumentation, and state-based replay.
-\label{fig:architecture}](figures/mosaic-architecture-overview.png){width="100%"}
+\label{fig:architecture}](figures/mosaic-architecture-overview.svg){width="100%"}
 
 <!--
 OUTLINE - 300-400 words. Do not draft yet.
