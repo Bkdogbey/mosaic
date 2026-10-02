@@ -36,13 +36,17 @@ class MarkerOutlet:
     """Publish events as an irregular, text-valued LSL stream (type ``Markers``)."""
 
     def __init__(self, name="HSI-Events", source_id=None):
-        info = pylsl.StreamInfo(name, "Markers", 1, pylsl.IRREGULAR_RATE, "string",
-                                source_id or f"{name}-{int(time.time())}")
+        self.source_id = source_id or f"{name}-{time.time_ns()}"      # unique, so a recorder can pick this stream out
+        info = pylsl.StreamInfo(name, "Markers", 1, pylsl.IRREGULAR_RATE, "string", self.source_id)
         self.outlet = pylsl.StreamOutlet(info)
 
     def push(self, event, **fields):
         """Send one event; extra keyword arguments are stored as JSON next to it."""
         self.outlet.push_sample([json.dumps({"event": event, **fields})])
+
+    def close(self):
+        """Take the stream off the network."""
+        self.outlet = None
 
 
 def attach_markers(commander, outlet):
@@ -89,7 +93,8 @@ class SyntheticGaze:
 
     def __init__(self, width=1280, height=800, rate=60, name="TobiiEyeTracker", seed=0):
         self.width, self.height, self.rate = width, height, rate
-        info = pylsl.StreamInfo(name, "Gaze", len(GAZE_CHANNELS), rate, "float32", "synthetic-gaze")
+        self.source_id = f"synthetic-gaze-{time.time_ns()}"
+        info = pylsl.StreamInfo(name, "Gaze", len(GAZE_CHANNELS), rate, "float32", self.source_id)
         desc = info.desc()
         desc.append_child_value("synthetic", "true")
         channels = desc.append_child("channels")
@@ -138,9 +143,11 @@ class SyntheticGaze:
         return self
 
     def stop(self):
+        """Stop the gaze and take the stream off the network."""
         self._stop.set()
         if self._thread:
             self._thread.join(timeout=1)
+        self.outlet = None
 
 
 # --------------------------------------------------------------------------------------
@@ -207,17 +214,24 @@ class XDFWriter:
 # Recorder
 # --------------------------------------------------------------------------------------
 class Recorder:
-    """Record LSL streams to one XDF file. ``Recorder(path, ["Markers", "Gaze"])`` records by stream type."""
+    """Record LSL streams to one XDF file. ``Recorder(path, ["Markers", "Gaze"])`` records by stream type.
 
-    def __init__(self, path, stream_types=("Markers", "Gaze"), wait=3.0):
+    Every stream of those types on the network is recorded, including other people's on a shared machine.
+    Pass ``source_ids`` to keep only the streams with those ids."""
+
+    def __init__(self, path, stream_types=("Markers", "Gaze"), wait=3.0, source_ids=None):
         self.path = path
         self.inlets = []
         flags = pylsl.proc_clocksync | pylsl.proc_dejitter
-        for stream_type in stream_types:
-            for info in pylsl.resolve_byprop("type", stream_type, timeout=wait):
-                inlet = pylsl.StreamInlet(info, max_buflen=360, processing_flags=flags)
-                inlet.open_stream(timeout=5)       # connect now, so no early samples are lost
-                self.inlets.append(inlet)
+        if source_ids is None:
+            found = [info for stream_type in stream_types for info in pylsl.resolve_byprop("type", stream_type, timeout=wait)]
+        else:                                      # ask for each stream by its id, so someone else's is never picked up
+            found = [info for source_id in source_ids for info in pylsl.resolve_byprop("source_id", source_id, timeout=wait)]
+            found = [info for info in found if info.type() in stream_types]
+        for info in found:
+            inlet = pylsl.StreamInlet(info, max_buflen=360, processing_flags=flags)
+            inlet.open_stream(timeout=5)           # connect now, so no early samples are lost
+            self.inlets.append(inlet)
         if not self.inlets:
             raise RuntimeError(f"No LSL streams found for types {list(stream_types)}")
         self.streams = [(inlet.info().name(), inlet.info().type()) for inlet in self.inlets]
@@ -274,6 +288,8 @@ def load_streams(path):
     streams, _ = pyxdf.load_xdf(path)
     out = {}
     for stream in streams:
+        if len(stream["time_stamps"]) == 0:        # a stream that was listed but sent nothing
+            continue
         info = stream["info"]
         desc = info["desc"][0] if isinstance(info.get("desc"), list) and info["desc"] and info["desc"][0] else {}
         labels = []
