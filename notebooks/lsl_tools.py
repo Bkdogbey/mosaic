@@ -7,7 +7,8 @@ Three small pieces, used by both notebooks:
 * **Recording**: ``Recorder`` pulls every LSL stream you name and saves one ``.xdf`` file
   (a minimal stand-in for LabRecorder, so a hub with no LabRecorder can still make XDF files).
 * **Analysis** : ``load_streams`` (read XDF with pyxdf), ``gaze_table``, ``marker_table``,
-  ``detect_fixations`` and a few plotting helpers.
+  ``study_tables`` (the same two tables from a study-runner recording), ``detect_fixations`` and a
+  few plotting helpers.
 """
 
 import json
@@ -314,6 +315,61 @@ def marker_table(stream):
             row["event"] = str(sample[0])
         rows.append(row)
     return rows
+
+
+_STATE_FIELDS = ("step_count", "agent_x", "agent_y", "saved_victims", "remaining_victims", "action", "reward")
+
+
+def fullscreen_aois(screen):
+    """The three screen areas ``{name: [x, y, width, height]}`` (px) of the fullscreen study GUI.
+
+    The study runner makes the game view as tall as the screen, puts a panel half as wide beside it
+    and centres the two (``SAREnvGUI._calculate_offsets``); ``screen = (width, height)`` in pixels."""
+    width, height = screen
+    scale = min(width / (height + height // 2), 1.0)
+    game, panel = height * scale, (height // 2) * scale
+    left, top = (width - game - panel) / 2, (height - game) / 2
+    return {"game": [left, top, game, game],
+            "info": [left + game, top, panel, game / 2],
+            "chat": [left + game, top + game / 2, panel, game / 2]}
+
+
+def study_tables(streams, screen):
+    """Gaze and game tables from a study-runner recording (MOSAIC's ``experiment`` package and LabRecorder).
+
+    That file differs from the one this notebook records in two ways: the game is a ``GameState`` stream
+    (one JSON state per frame) instead of ``Markers``, and gaze is in fractions of the screen (0..1)
+    instead of pixels. Returns ``(gaze, rows)`` in the form ``gaze_table`` and ``marker_table`` give:
+    gaze in pixels of ``screen = (width, height)``, and rows with one ``session_start``, a ``state`` per
+    game step and a ``rescue`` whenever ``saved_victims`` goes up."""
+    gaze = gaze_table(streams["Gaze"])
+    gaze["x"], gaze["y"] = gaze["x"] * screen[0], gaze["y"] * screen[1]
+
+    game = streams["GameState"]
+    rows = [{"t": float(game["ts"][0]), "event": "session_start", "screen": list(screen),
+             "aois": fullscreen_aois(screen), "synthetic_gaze": False}]
+    steps = saved = None
+    for t, sample in zip(game["ts"], game["data"]):
+        state = json.loads(sample[0])
+        if state["total_steps"] != steps:
+            steps = state["total_steps"]
+            rows.append({"t": float(t), "event": "state", **{key: state[key] for key in _STATE_FIELDS}})
+        if saved is not None and state["saved_victims"] > saved:
+            rows.append({"t": float(t), "event": "rescue"})
+        saved = state["saved_victims"]
+    return gaze, rows
+
+
+def gaze_area(gaze, aois):
+    """Which area each gaze sample is in: an array of names, one per sample.
+
+    A name from ``aois`` (``{name: [x, y, width, height]}`` in px), ``"elsewhere"`` for valid gaze outside
+    them all, or ``"no data"`` where the tracker had no valid gaze. ``gaze`` is a ``gaze_table`` dict."""
+    x, y, valid = gaze["x"], gaze["y"], gaze["valid"]
+    area = np.where(valid, "elsewhere", "no data").astype(object)
+    for name, (left, top, width, height) in aois.items():
+        area[valid & (x >= left) & (x < left + width) & (y >= top) & (y < top + height)] = name
+    return area
 
 
 def detect_fixations(t, x, y, max_dispersion=40.0, min_duration=0.10):
